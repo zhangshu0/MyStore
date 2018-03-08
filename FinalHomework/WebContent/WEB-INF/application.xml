@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+     xmlns:context="http://www.springframework.org/schema/context"
+     xmlns:tx="http://www.springframework.org/schema/tx"
+     xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">        
+        
+        
+        <context:component-scan base-package="/**/com.*"/>
+        <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" >
+       	 <property name="prefix" value="/"></property>
+       	 <property name="suffix" value=".jsp"></property>
+        </bean>	 
+        <context:property-placeholder location="/WEB-INF/hibernate.properties"/>
+		<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName" value="${db.driverName}"></property>
+			<property name="url" value="${db.url}"></property>
+			<property name="username" value="${db.username}"></property>
+			<property name="password" value="${db.password}"></property>
+		</bean>
+		<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+			<property name="dataSource" ref="dataSource"></property>
+			<property name="packagesToScan" value="/**/com.*"></property>
+			<property name="hibernateProperties">
+				<props>
+					<prop key="hibernate.dialect">org.hibernate.dialect.SQLServer2008Dialect</prop>
+					<prop key="hibernate.show_sql">true</prop>
+					<prop key="hibernate.format_sql">false</prop>
+					<prop key="hibernate.characterEncoding">true</prop>
+					<prop key="current_session_context_class">thread</prop>
+					<prop key="hibernate.autoReconnect">true</prop>
+				</props>
+			</property>
+		</bean>
+		<bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		    <property name="sessionFactory" ref="sessionFactory"/>
+		</bean>
+		
+		<tx:annotation-driven transaction-manager="txManager"/>
+     	<mvc:interceptors>
+        	<mvc:interceptor>
+        	 	<mvc:mapping path="/Admin/**" /> 
+        	 	<mvc:exclude-mapping path="/Admin/adminlogin.action" /> 
+        		<bean class="com.ZhangShuo.web.Interceptor.MyInterceptor"/>
+        	</mvc:interceptor>
+        </mvc:interceptors>
+		<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+   		 <property name="maxUploadSize" value="10000000"/>
+   		</bean>
+</beans>
